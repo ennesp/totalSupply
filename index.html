@@ -1,0 +1,41 @@
+<html>
+<head>
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<script language="javascript" type="text/javascript" src="web3.min.js"></script>
+<script language="javascript" type="text/javascript" src="config.js"></script>
+
+<script>
+  //connect to web3-provider
+  var web3infura = new Web3(new Web3.providers.HttpProvider(apiURL));
+  var contractInstance = new web3infura.eth.Contract(tokenAbi, contractAddress);
+
+  console.log(contractInstance.methods);
+
+  function totalSupply() {
+    contractInstance.methods.totalSupply().call().then(function(value) {
+      console.log(value);
+      document.querySelector('.lead').innerHTML = value + ' TYPE';
+    });
+  }
+</script>
+</head>
+<body>
+    <div class="container">
+      <div class="py-5 text-center">
+        <img class="d-block mx-auto mb-4" src="logo.jpeg" style="width:300px">
+        <p class="lead">Protocol to check TYPE tokens totalSupply value</p>
+      </div>
+      <div class="row">
+        <div class="col-md-12 order-md-1">
+            <button class="btn btn-primary btn-lg btn-block" onclick="totalSupply()">Check Total Supply</button>
+        </div>
+      </div>
+    </div>
+    <style>
+      .input-group {
+        margin-bottom: 15px;
+      }
+    </style>
+</body>

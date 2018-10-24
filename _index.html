@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="ICO smart contract example">
+
+    <title>Typerium Test ICO</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="bootstrap.min.css" />
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="custom.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="api.html" target="_blank">Code &amp; Tutorial</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" target="_blank" href="https://etherscan.io/address/0x85EafC29690c6D64C8513499B6Bea8864fBEb6D7">Contract</a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Typerium Test Token ICO</h3>
+      </div>
+
+      <div class="jumbotron">
+        <h1 class="display-5">Typerium ICO Contract Address</h1>
+        <br>
+        <p class="lead"><strong>0x85EafC29690c6D64C8513499B6Bea8864fBEb6D7</strong></p>
+        <p>Send ether to <a href="https://etherscan.io/address/0x85EafC29690c6D64C8513499B6Bea8864fBEb6D7" target="_blank">contract address</a> in order to buy <a href="https://etherscan.io/token/0x6979a9c4e260f51a22e54b798d6a91d59fd13054" target="_blank">TYPE tokens</a> (minimum 0.053 ETH)</p>
+        <br>
+        <h1 class="display-5">Total Raised</h1>
+        <p class="lead"><strong id="raised">0</strong> ETH</p>
+      </div>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>Current Price</h4>
+          <p>1 ETH = <span id="rate">0</span> TYPE</p>
+
+          <h4>Current Round</h4>
+          <p>Round #<span id="round">0</span></p>
+
+          <h4>Current Bonus</h4>
+          <p><span id="bonus">0</span>%</p>
+
+          <h4>Current Round Limit</h4>
+          <p><span id="round-limit">0</span> TYPE</p>
+
+          <h4>Current Round Start</h4>
+          <p><span id="start-time">0</span></p>
+
+          <h4>Current Round End</h4>
+          <p><span id="end-time">0</span></p>
+
+          <h4>Currently Allocated Tokens</h4>
+          <p><span id="alloc-tokens">0</span></p>
+
+        </div>
+
+        <div class="col-lg-6">
+          <h4>Tokens Sold</h4>
+          <p><span id="sold">0</span> TYPE</p>
+
+          <h4>Tokens Distributed</h4>
+          <p><span id="distributed">0</span> TYPE</p>
+
+          <h4>Tokens Available This Round</h4>
+          <p><span id="available-this-round">0</span> TYPE</p>
+
+          <h4>Tokens Unsold</h4>
+          <p><span id="unsold">0</span> TYPE</p>
+
+          <h4>Tokens Locked</h4>
+          <p><span id="locked">0</span> TYPE</p>
+
+          <h4>Tokens Unlock Date</h4>
+          <p><span id="unlocked">0</span></p>
+
+          <h4>Tokens Allocate Date</h4>
+          <p><span id="allocate">0</span></p>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <p>&copy; Typerium 2018</p>
+      </footer>
+
+    </div> <!-- /container -->
+    <script language="javascript" type="text/javascript" src="web3.min.js"></script>
+    <script language="javascript" type="text/javascript" src="config.js"></script>
+    <script language="javascript" type="text/javascript" src="moment.js"></script>
+    <script>
+        //connect to web-socket to have a web3-provider
+        var web3 = new Web3(new Web3.providers.HttpProvider(apiURL));
+        //var web3 = new Web3(new Web3.providers.WebsocketProvider("wss://infura.io/ws"));
+
+        //decimal configuration for ETH and TYPE tokens
+        var tokenDecimals = 4;
+        var etherDecimals = 18;
+        //making contract instance to call available methods
+        var contractInstance = new web3.eth.Contract(crowdSaleAbi, contractAddress);
+
+        //checking avaialable methods
+        console.log(contractInstance.methods);
+
+        var decimals= (10 ** tokenDecimals)
+        var sold = 0;
+
+        //populating UI with values - let's go! sold tokens amount
+        contractInstance.methods.soldTokens().call().then(function(amount) {
+          document.getElementById('sold').innerHTML = amount / decimals;
+          sold = amount; //save for future computation
+        });
+        //amount of tokens being held in contract as locked (for distribution after 4 months)
+        contractInstance.methods.lockedTokens().call().then(function(amount) {
+          document.getElementById('locked').innerHTML = amount / decimals;
+        });
+        //current round value
+        contractInstance.methods.round().call().then(function(value) {
+          document.getElementById('round').innerHTML = value;
+        });
+        //current bonus value
+        contractInstance.methods.currentBonusLevel().call().then(function(value) {
+          document.getElementById('bonus').innerHTML = value;
+        });
+        //current round available tokens
+        contractInstance.methods.currentCapLevel().call().then(function(todo) {
+            contractInstance.methods.processedTokens().call().then(function(done) {
+              document.getElementById('round-limit').innerHTML = todo / decimals
+              document.getElementById('available-this-round').innerHTML = (todo - done) / decimals;
+          });
+        });
+        //current round rate per 1 ETH
+        contractInstance.methods.currentRateLevel().call().then(function(value) {
+          document.getElementById('rate').innerHTML = value;
+        });
+        //amount of ETH raised so far
+        web3.eth.getBalance(contractAddress).then(function(amount) {
+          document.getElementById('raised').innerHTML = amount / (10 ** etherDecimals);
+        });
+        //how many tokens been transfered/distributed from contract to seller, not including locked tokens
+        contractInstance.methods.distributedTokens().call().then(function(amount) {
+          document.getElementById('distributed').innerHTML = amount / decimals
+        });
+        //how many tokens been transfered/distributed from contract to seller, not including locked tokens
+        contractInstance.methods.allocatedTokens().call().then(function(amount) {
+          document.getElementById('alloc-tokens').innerHTML = amount / decimals
+        });
+        //when the round starts/ends
+        contractInstance.methods.currentRoundStart().call().then(function(value) {
+          document.getElementById('start-time').innerHTML = moment.unix(value).format();
+          document.getElementById('end-time').innerHTML = moment.unix(value).add(7,'d').format();
+        });
+        //when unlock date is
+        contractInstance.methods.lockedTill().call().then(function(value) {
+          document.getElementById('unlocked').innerHTML = moment.unix(value).format();
+        });
+        //when allocate date is
+        contractInstance.methods.approvedTill().call().then(function(value) {
+          document.getElementById('allocate').innerHTML = moment.unix(value).format();
+        });
+        //unsold tokens being added after each round closes
+        contractInstance.methods.unSoldTokens().call().then(function(amount) {
+          document.getElementById('unsold').innerHTML = amount / decimals;
+          sold = amount; //save for future computation
+        });
+    </script>
+  </body>
+</html>
