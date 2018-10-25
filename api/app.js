@@ -33,8 +33,7 @@ app.get('/', function(req, res){
 app.get('/totalSupply', function(req, res){
     contractInstance.methods.totalSupply().call().then(function(value) {
         var realTotalSupply = value/4;
-        const total = {totalSupply: realTotalSupply};
-        res.send(total)
+        res.send(realTotalSupply)
     });
 });
 
