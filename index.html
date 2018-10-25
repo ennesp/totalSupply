@@ -10,8 +10,25 @@
   //connect to web3-provider
   var web3infura = new Web3(new Web3.providers.HttpProvider(apiURL));
   var contractInstance = new web3infura.eth.Contract(tokenAbi, contractAddress);
+  var bankInstance = new web3infura.eth.Contract(bankAbi, bankAddress);
 
   console.log(contractInstance.methods);
+  console.log(contractInstance.methods);
+
+  function circulatingSupply() {
+    bankInstance.methods.distributedTokens().call().then(function(distributedTokens) {
+      contractInstance.methods.totalSupply().call().then(function(totalSupply) {
+
+        //calculate
+        var bankedSupply = totalSupply / 2; //how much tokens locked in bank, by design 50%
+        var circulatingSupply = parseInt(totalSupply) - parseInt(bankedSupply) + parseInt(distributedTokens);
+
+        //output
+        console.log(circulatingSupply);
+        document.querySelector('.lead').innerHTML = circulatingSupply + ' TYPE';
+      });
+    });
+  }
 
   function totalSupply() {
     contractInstance.methods.totalSupply().call().then(function(value) {
@@ -27,7 +44,17 @@
         <img class="d-block mx-auto mb-4" src="logo.jpeg" style="width:300px">
         <p class="lead">Protocol to check TYPE tokens totalSupply value</p>
       </div>
-      <div class="row">
+
+            <div class="row">
+            <div class="col-md-6">
+              <button class="btn btn-primary btn-lg btn-block allocate" onclick="circulatingSupply()">Circulating Supply</button>
+            </div>
+            <div class="col-md-6">
+            <button class="btn btn-primary btn-lg btn-block claim" onclick="totalSupply()">Total Supply</button>
+          </div>
+          </div>
+
+      <div class="row" style="display: none;">
         <div class="col-md-12 order-md-1">
             <button class="btn btn-primary btn-lg btn-block" onclick="totalSupply()">Check Total Supply</button>
         </div>
