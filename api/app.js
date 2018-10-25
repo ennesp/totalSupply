@@ -19,7 +19,7 @@ app.get('/', function(req, res){
           var bankedSupply = totalSupply / 2; //how much tokens locked in bank, by design 50%
           var circulatingSupply = parseInt(totalSupply) - parseInt(bankedSupply) + parseInt(distributedTokens);
           var realSupply = circulatingSupply/decimals;
-          var realTotalSupply = totalSupply/4;
+          var realTotalSupply = totalSupply/decimals;
           var value = {
               totalSupply: realTotalSupply,
               circulatingSupply: realSupply
@@ -32,8 +32,8 @@ app.get('/', function(req, res){
 
 app.get('/totalSupply', function(req, res){
     contractInstance.methods.totalSupply().call().then(function(value) {
-        var realTotalSupply = value/4;
-        res.send(realTotalSupply)
+        var realTotalSupply = value/decimals;
+        res.send(realTotalSupply.toString());
     });
 });
 
